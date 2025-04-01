@@ -43,9 +43,11 @@ async def execute_statement(
     request_data = {
         "statement": statement,
         "warehouse_id": warehouse_id,
-        "wait_timeout": "0s",  # Wait indefinitely
+        "wait_timeout": "10s",
+        "format": "JSON_ARRAY",
+        "disposition": "INLINE",
         "row_limit": row_limit,
-        "byte_limit": byte_limit,
+        "byte_limit": 16777216,
     }
     
     if catalog:
@@ -57,7 +59,7 @@ async def execute_statement(
     if parameters:
         request_data["parameters"] = parameters
         
-    return make_api_request("POST", "/api/2.0/sql/statements/execute", data=request_data)
+    return make_api_request("POST", "/api/2.0/sql/statements", data=request_data)
 
 
 async def execute_and_wait(

@@ -1,6 +1,10 @@
-# Databricks MCP Server
+# Markov Databricks MCP
 
 A Model Completion Protocol (MCP) server for Databricks that provides access to Databricks functionality via the MCP protocol. This allows LLM-powered tools to interact with Databricks clusters, jobs, notebooks, and more.
+
+This project is maintained by Olivier Debeuf De Rijcker <olivier@markov.bot>.
+
+Credit for the initial version goes to [@JustTryAI](https://github.com/JustTryAI/databricks-mcp-server).
 
 ## Features
 
@@ -48,8 +52,8 @@ The Databricks MCP Server exposes the following tools:
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/JustTryAI/databricks-mcp-server.git
-   cd databricks-mcp-server
+   git clone https://github.com/markov-kernel/databricks-mcp.git
+   cd databricks-mcp
    ```
 
 3. Set up the project with `uv`:
@@ -221,4 +225,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## About
+
+ A Model Completion Protocol (MCP) server for interacting with Databricks services. Maintained by markov.bot. 

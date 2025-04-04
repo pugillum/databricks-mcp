@@ -89,27 +89,69 @@ The Databricks MCP Server exposes the following tools:
 
 ## Running the MCP Server
 
-To start the MCP server, run:
+### Standalone
+
+To start the MCP server directly for testing or development, run:
 
 ```bash
-# Windows
-.\start_mcp_server.ps1
+# Activate your virtual environment if not already active
+source .venv/bin/activate 
 
-# Linux/Mac
-./start_mcp_server.sh
-```
-
-These wrapper scripts will execute the actual server scripts located in the `scripts` directory. The server will start and be ready to accept MCP protocol connections.
-
-You can also directly run the server scripts from the scripts directory:
-
-```bash
-# Windows
-.\scripts\start_mcp_server.ps1
-
-# Linux/Mac
+# Run the start script (handles finding env vars from .env if needed)
 ./scripts/start_mcp_server.sh
 ```
+
+This is useful for seeing direct output and logs.
+
+### Integrating with AI Clients
+
+To use this server with AI clients like Cursor or Claude CLI, you need to register it.
+
+#### Cursor Setup
+
+1.  Open your global MCP configuration file located at `~/.cursor/mcp.json` (create it if it doesn't exist).
+2.  Add the following entry within the `mcpServers` object, replacing placeholders with your actual values and ensuring the path to `start_mcp_server.sh` is correct:
+
+    ```json
+    {
+      "mcpServers": {
+        // ... other servers ...
+        "databricks-mcp-local": { 
+          "command": "/absolute/path/to/your/project/databricks-mcp-server/start_mcp_server.sh",
+          "args": [],
+          "env": {
+            "DATABRICKS_HOST": "https://your-databricks-instance.azuredatabricks.net", 
+            "DATABRICKS_TOKEN": "dapiXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            "RUNNING_VIA_CURSOR_MCP": "true" 
+          }
+        }
+        // ... other servers ...
+      }
+    }
+    ```
+
+3.  **Important:** Replace `/absolute/path/to/your/project/databricks-mcp-server/` with the actual absolute path to this project directory on your machine.
+4.  Replace the `DATABRICKS_HOST` and `DATABRICKS_TOKEN` values with your credentials.
+5.  Save the file and **restart Cursor**.
+
+6.  You can now invoke tools using `databricks-mcp-local:<tool_name>` (e.g., `databricks-mcp-local:list_jobs`).
+
+#### Claude CLI Setup
+
+1.  Use the `claude mcp add` command to register the server. Provide your credentials using the `-e` flag for environment variables and point the command to the `start_mcp_server.sh` script using `--` followed by the absolute path:
+
+    ```bash
+    claude mcp add databricks-mcp-local \
+      -s user \
+      -e DATABRICKS_HOST="https://your-databricks-instance.azuredatabricks.net" \
+      -e DATABRICKS_TOKEN="dapiXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" \
+      -- /absolute/path/to/your/project/databricks-mcp-server/start_mcp_server.sh
+    ```
+
+2.  **Important:** Replace `/absolute/path/to/your/project/databricks-mcp-server/` with the actual absolute path to this project directory on your machine.
+3.  Replace the `DATABRICKS_HOST` and `DATABRICKS_TOKEN` values with your credentials.
+
+4.  You can now invoke tools using `databricks-mcp-local:<tool_name>` in your Claude interactions.
 
 ## Querying Databricks Resources
 

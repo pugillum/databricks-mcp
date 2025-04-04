@@ -6,14 +6,19 @@ import os
 from typing import Any, Dict, Optional
 
 # Import dotenv if available, but don't require it
-try:
-    from dotenv import load_dotenv
-    # Load .env file if it exists
-    load_dotenv()
-    print("Successfully loaded dotenv")
-except ImportError:
-    print("WARNING: python-dotenv not found, environment variables must be set manually")
-    # We'll just rely on OS environment variables being set manually
+# Only load dotenv if not running via Cursor MCP (which provides env vars directly)
+if not os.environ.get("RUNNING_VIA_CURSOR_MCP"):
+    try:
+        from dotenv import load_dotenv
+        # Load .env file if it exists
+        if load_dotenv():
+            print("Successfully loaded .env file")
+        else:
+            print("No .env file found or it is empty")
+    except ImportError:
+        print("WARNING: python-dotenv not found, relying on environment variables.")
+else:
+    print("RUNNING_VIA_CURSOR_MCP is set, skipping dotenv loading.")
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings

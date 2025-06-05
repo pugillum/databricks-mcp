@@ -10,6 +10,12 @@ fi
 # Activate the virtual environment
 source .venv/bin/activate
 
+# Load environment variables from .env file if it exists
+if [ -f .env ]; then
+    echo "Loading environment variables from .env file..."
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Check if environment variables are set
 if [ -z "$DATABRICKS_HOST" ] || [ -z "$DATABRICKS_TOKEN" ]; then
     echo "Warning: DATABRICKS_HOST and/or DATABRICKS_TOKEN environment variables are not set."

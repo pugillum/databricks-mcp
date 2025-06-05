@@ -34,18 +34,20 @@ class DatabricksMCPServer(FastMCP):
 
     def __init__(self):
         """Initialize the Databricks MCP server."""
-        super().__init__(name="databricks-mcp", 
-                         version="1.0.0", 
-                         instructions="Use this server to manage Databricks resources")
+        super().__init__(
+            name="databricks-mcp",
+            version="1.0.0",
+            instructions="Use this server to manage Databricks resources",
+        )
         logger.info("Initializing Databricks MCP server")
         logger.info(f"Databricks host: {settings.DATABRICKS_HOST}")
-        
+
         # Register tools
         self._register_tools()
-    
+
     def _register_tools(self):
         """Register all Databricks MCP tools."""
-        
+
         # Cluster management tools
         @self.tool(
             name="list_clusters",
@@ -59,7 +61,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error listing clusters: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         @self.tool(
             name="create_cluster",
             description="Create a new Databricks cluster with parameters: cluster_name (required), spark_version (required), node_type_id (required), num_workers, autotermination_minutes",
@@ -72,7 +74,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error creating cluster: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         @self.tool(
             name="terminate_cluster",
             description="Terminate a Databricks cluster with parameter: cluster_id (required)",
@@ -85,7 +87,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error terminating cluster: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         @self.tool(
             name="get_cluster",
             description="Get information about a specific Databricks cluster with parameter: cluster_id (required)",
@@ -98,7 +100,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error getting cluster info: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         @self.tool(
             name="start_cluster",
             description="Start a terminated Databricks cluster with parameter: cluster_id (required)",
@@ -111,7 +113,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error starting cluster: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         # Job management tools
         @self.tool(
             name="list_jobs",
@@ -125,7 +127,35 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error listing jobs: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
+        # Job management tools
+        @self.tool(
+            name="list_job_runs",
+            description="List the latest failed runs of all Databricks jobs with parameters:  job_id (optional, filter by specific job)",
+        )
+        async def list_job_runs(params: Dict[str, Any]) -> List[TextContent]:
+            logger.info(f"Listing job runs with params: {params}")
+            try:
+                result = await jobs.list_job_runs(params.get("job_id"))
+                return [{"text": json.dumps(result)}]
+            except Exception as e:
+                logger.error(f"Error listing job runs: {str(e)}")
+                return [{"text": json.dumps({"error": str(e)})}]
+
+        # # Job management tools
+        # @self.tool(
+        #     name="get_run_details",
+        #     description="List the latest failed runs of all Databricks jobs with parameters:  job_id (optional, filter by specific job)",
+        # )
+        # async def get_run_details(params: Dict[str, Any]) -> List[TextContent]:
+        #     logger.info(f"Listing job runs with params: {params}")
+        #     try:
+        #         result = await jobs.get_run_details(params.get("job_id"))
+        #         return [{"text": json.dumps(result)}]
+        #     except Exception as e:
+        #         logger.error(f"Error listing job runs: {str(e)}")
+        #         return [{"text": json.dumps({"error": str(e)})}]
+
         @self.tool(
             name="run_job",
             description="Run a Databricks job with parameters: job_id (required), notebook_params (optional)",
@@ -139,7 +169,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error running job: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         # Notebook management tools
         @self.tool(
             name="list_notebooks",
@@ -153,7 +183,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error listing notebooks: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         @self.tool(
             name="export_notebook",
             description="Export a notebook from the workspace with parameters: path (required), format (optional, one of: SOURCE, HTML, JUPYTER, DBC)",
@@ -163,18 +193,18 @@ class DatabricksMCPServer(FastMCP):
             try:
                 format_type = params.get("format", "SOURCE")
                 result = await notebooks.export_notebook(params.get("path"), format_type)
-                
+
                 # For notebooks, we might want to trim the response for readability
                 content = result.get("content", "")
                 if len(content) > 1000:
                     summary = f"{content[:1000]}... [content truncated, total length: {len(content)} characters]"
                     result["content"] = summary
-                
+
                 return [{"text": json.dumps(result)}]
             except Exception as e:
                 logger.error(f"Error exporting notebook: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         # DBFS tools
         @self.tool(
             name="list_files",
@@ -188,7 +218,7 @@ class DatabricksMCPServer(FastMCP):
             except Exception as e:
                 logger.error(f"Error listing files: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
-        
+
         # SQL tools
         @self.tool(
             name="execute_sql",
@@ -201,12 +231,9 @@ class DatabricksMCPServer(FastMCP):
                 warehouse_id = params.get("warehouse_id")
                 catalog = params.get("catalog")
                 schema = params.get("schema")
-                
+
                 result = await sql.execute_statement(
-                    statement=statement,
-                    warehouse_id=warehouse_id,
-                    catalog=catalog,
-                    schema=schema
+                    statement=statement, warehouse_id=warehouse_id, catalog=catalog, schema=schema
                 )
                 return [{"text": json.dumps(result)}]
             except Exception as e:
@@ -219,11 +246,11 @@ async def main():
     try:
         logger.info("Starting Databricks MCP server")
         server = DatabricksMCPServer()
-        
+
         # Use the built-in method for stdio servers
         # This is the recommended approach for MCP servers
         await server.run_stdio_async()
-            
+
     except Exception as e:
         logger.error(f"Error in Databricks MCP server: {str(e)}", exc_info=True)
         raise
@@ -231,7 +258,7 @@ async def main():
 
 if __name__ == "__main__":
     # Turn off buffering in stdout
-    if hasattr(sys.stdout, 'reconfigure'):
+    if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(line_buffering=True)
-    
-    asyncio.run(main()) 
+
+    asyncio.run(main())

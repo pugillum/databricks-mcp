@@ -101,6 +101,24 @@ async def get_job_run_details(run_id: int) -> Dict[str, Any]:
     return make_api_request("GET", "/api/2.2/jobs/runs/get", params={"run_id": run_id})
 
 
+# Function to return task run output with input run_id
+async def get_task_run_output(run_id: int) -> Dict[str, Any]:
+    """
+    Get the output of a specific task run.
+
+    Args:
+        run_id: ID of the task run
+
+    Returns:
+        Response containing the task run output
+
+    Raises:
+        DatabricksAPIError: If the API request fails
+    """
+    logger.info(f"Getting output for task run: {run_id}")
+    return make_api_request("GET", "/api/2.2/jobs/runs/get-output", params={"run_id": run_id})
+
+
 async def get_job(job_id: int) -> Dict[str, Any]:
     """
     Get information about a specific job.

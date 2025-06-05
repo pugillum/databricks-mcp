@@ -136,13 +136,17 @@ class DatabricksMCPServer(FastMCP):
         async def list_job_runs(params: Dict[str, Any]) -> List[TextContent]:
             logger.info(f"Listing job runs with params: {params}")
             try:
-                result = await jobs.list_job_runs(params.get("job_id"))
+                job_id = params.get("job_id")
+                if job_id is None:
+                    logger.info("No job_id provided, listing runs for all jobs")
+                    result = await jobs.list_job_runs()
+                else:
+                    result = await jobs.list_job_runs(params.get("job_id"))
                 return [{"text": json.dumps(result)}]
             except Exception as e:
                 logger.error(f"Error listing job runs: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
 
-        # Job management tools
         @self.tool(
             name="get_job_run_details",
             description="Get details of a specific job run with parameter: run_id (required)",
@@ -150,10 +154,30 @@ class DatabricksMCPServer(FastMCP):
         async def get_job_run_details(params: Dict[str, Any]) -> List[TextContent]:
             logger.info(f"Getting details of job run with params: {params}")
             try:
-                result = await jobs.get_job_run_details(params.get("run_id"))
+                run_id = params.get("run_id")
+                if not run_id:
+                    raise ValueError("run_id is required")
+                result = await jobs.get_job_run_details(run_id)
                 return [{"text": json.dumps(result)}]
             except Exception as e:
                 logger.error(f"Error getting details of job run: {str(e)}")
+                return [{"text": json.dumps({"error": str(e)})}]
+
+        @self.tool(
+            name="get_task_run_output",
+            description="Get the output of a specific task run with parameters: run_id (required)",
+        )
+        async def get_task_run_output(params: Dict[str, Any]) -> List[TextContent]:
+            logger.info(f"Getting task run output with params: {params}")
+            try:
+                run_id = params.get("run_id")
+                if not run_id:
+                    raise ValueError("run_id is required")
+
+                result = await jobs.get_task_run_output(run_id)
+                return [{"text": json.dumps(result)}]
+            except Exception as e:
+                logger.error(f"Error getting task run output: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
 
         @self.tool(

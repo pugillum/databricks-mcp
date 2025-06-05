@@ -142,19 +142,19 @@ class DatabricksMCPServer(FastMCP):
                 logger.error(f"Error listing job runs: {str(e)}")
                 return [{"text": json.dumps({"error": str(e)})}]
 
-        # # Job management tools
-        # @self.tool(
-        #     name="get_run_details",
-        #     description="List the latest failed runs of all Databricks jobs with parameters:  job_id (optional, filter by specific job)",
-        # )
-        # async def get_run_details(params: Dict[str, Any]) -> List[TextContent]:
-        #     logger.info(f"Listing job runs with params: {params}")
-        #     try:
-        #         result = await jobs.get_run_details(params.get("job_id"))
-        #         return [{"text": json.dumps(result)}]
-        #     except Exception as e:
-        #         logger.error(f"Error listing job runs: {str(e)}")
-        #         return [{"text": json.dumps({"error": str(e)})}]
+        # Job management tools
+        @self.tool(
+            name="get_job_run_details",
+            description="Get details of a specific job run with parameter: run_id (required)",
+        )
+        async def get_job_run_details(params: Dict[str, Any]) -> List[TextContent]:
+            logger.info(f"Getting details of job run with params: {params}")
+            try:
+                result = await jobs.get_job_run_details(params.get("run_id"))
+                return [{"text": json.dumps(result)}]
+            except Exception as e:
+                logger.error(f"Error getting details of job run: {str(e)}")
+                return [{"text": json.dumps({"error": str(e)})}]
 
         @self.tool(
             name="run_job",

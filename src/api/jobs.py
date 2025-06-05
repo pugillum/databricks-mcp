@@ -65,6 +65,7 @@ async def list_jobs() -> Dict[str, Any]:
     return make_api_request("GET", "/api/2.2/jobs/list")
 
 
+# TODO: Use pagination and date range filters
 async def list_job_runs(job_id: Optional[int]) -> Dict[str, Any]:
     """
     List all runs for all jobs.
@@ -81,6 +82,23 @@ async def list_job_runs(job_id: Optional[int]) -> Dict[str, Any]:
         return make_api_request("GET", "/api/2.2/jobs/runs/list")
 
     return make_api_request("GET", "/api/2.2/jobs/runs/list", params={"job_id": job_id})
+
+
+async def get_job_run_details(run_id: int) -> Dict[str, Any]:
+    """
+    Retrieve details for a specific job run.
+
+    Args:
+        run_id: ID of the job run
+
+    Returns:
+        Response containing job run details
+
+    Raises:
+        DatabricksAPIError: If the API request fails
+    """
+    logger.info(f"Retrieving details for job run: {run_id}")
+    return make_api_request("GET", "/api/2.2/jobs/runs/get", params={"run_id": run_id})
 
 
 async def get_job(job_id: int) -> Dict[str, Any]:

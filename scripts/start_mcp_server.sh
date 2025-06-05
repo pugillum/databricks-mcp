@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# change running path to this script's directory
+cd "$(dirname "$0")/.."
+
 # Check if the virtual environment exists
 if [ ! -d ".venv" ]; then
     echo "Virtual environment not found. Please create it first:"

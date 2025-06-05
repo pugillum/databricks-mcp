@@ -42,3 +42,10 @@ databricks-mcp = "src.cli.commands:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"] 
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipython>=8.37.0",
+    "python-dotenv>=1.0.1",
+]

@@ -6,6 +6,7 @@ with Databricks APIs. It follows the Model Context Protocol standard, communicat
 via stdio and directly connecting to Databricks when tools are invoked.
 """
 
+import argparse
 import asyncio
 import json
 import logging
@@ -267,13 +268,29 @@ class DatabricksMCPServer(FastMCP):
 
 async def main():
     """Main entry point for the MCP server."""
+    # get arguments from command line using argparse
+    parser = argparse.ArgumentParser(description="Databricks MCP Server")
+    # add argument for server type, default to stdio
+    parser.add_argument(
+        "--server-type",
+        choices=["stdio", "sse"],
+        default="stdio",
+        help="Type of server to run (stdio or sse)",
+    )
+    args = parser.parse_args()
+
     try:
         logger.info("Starting Databricks MCP server")
         server = DatabricksMCPServer()
 
-        # Use the built-in method for stdio servers
-        # This is the recommended approach for MCP servers
-        await server.run_stdio_async()
+        if args.server_type == "stdio":
+            logger.info("Running server in stdio mode")
+            # Run the server using stdio
+            await server.run_stdio_async()
+        elif args.server_type == "sse":
+            logger.info("Running server in SSE mode")
+            # Run the server using Server-Sent Events (SSE)
+            await server.run_sse_async()
 
     except Exception as e:
         logger.error(f"Error in Databricks MCP server: {str(e)}", exc_info=True)

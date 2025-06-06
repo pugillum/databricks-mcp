@@ -36,6 +36,7 @@ if [ -n "$DATABRICKS_HOST" ]; then
     echo "Databricks Host: $DATABRICKS_HOST"
 fi
 
-python -m src.server.databricks_mcp_server
+python -m src.server.databricks_mcp_server --server-type sse
+
 
 echo "Server stopped at $(date)" 

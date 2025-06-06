@@ -103,6 +103,36 @@ source .venv/bin/activate
 
 This is useful for seeing direct output and logs.
 
+### Integrating with VS Code and Copilot
+
+There are two flavours of integration with VS Code and Copilot:
+- SSE-based
+- stdio-based
+
+#### SSE-based
+
+1. Run the script `./scripts/start_mcp_server_sse.sh` to start the server
+1. `ctrl+shift+p` and select MCP: Add Server
+1. Select HTTP
+1. For URL enter `http://localhost:8000/sse`
+1. For name enter `databricks-mcp`
+1. Select User Settings if you want to run this in all your VS Code contexts.  Select workspace
+if you want to only run it in the context of the current VS Code workspace
+
+/Users/travisdent/Projects/2.Hobby/2025_06_databricks_mcp/scripts/start_mcp_server_sse.sh
+#### stdio-based
+
+1. `ctrl+shift+p` and select MCP: Add Server
+1. Select Command (stdio)
+1. For Command to run enter the full path to the file `start_mcp_server_stdio.sh` (it'll be something like `/Users/<your name>/../../start_mcp_server_stdio.sh`)
+1. For name enter `databricks-mcp`
+1. Select User Settings if you want to run this in all your VS Code contexts.  Select workspace
+if you want to only run it in the context of the current VS Code workspace
+
+
+If you selected the workspace context you'll see a file `mcp.json` added to the `.vscode` folder of
+the current VS Code workspace.  For User Settings, you can see the added server by selecting `ctrl+shift+p` and select "Preferences: Open User Settings (JSON)".
+
 ### Integrating with AI Clients
 
 To use this server with AI clients like Cursor or Claude CLI, you need to register it.
